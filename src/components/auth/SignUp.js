@@ -2,6 +2,7 @@ import {Button, Form} from "react-bootstrap"
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth";
 import {useState} from "react";
 import {toast} from "react-toastify";
+import {postRegisterUser} from "../api/requests";
 
 export default function SignUpComponent(props) {
     const auth = getAuth(props.app)
@@ -13,6 +14,7 @@ export default function SignUpComponent(props) {
         if (password === passwordRepeat) {
             createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
                 const user = userCredential.user;
+                postRegisterUser(user);
                 props.setUser(user);
             }).catch((error) => {
                 console.log(error);

@@ -12,7 +12,7 @@ ReactDOM.render(
     <BrowserRouter>
         <ToastContainer
             position="bottom-left"
-            autoClose={2000}
+            autoClose={4000}
             hideProgressBar={false}
             newestOnTop
             closeOnClick

@@ -2,6 +2,7 @@ import {Button, Form} from "react-bootstrap"
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {getUserStatus} from "../api/requests";
 
 export default function LoginComponent(props) {
     const auth = getAuth(props.app)
@@ -13,6 +14,7 @@ export default function LoginComponent(props) {
         signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
             const user = userCredential.user;
             props.setUser(user);
+            props.setUserPermissionState(getUserStatus(user))
             navigate('/');
         }).catch((error) => {
             console.log(error);
