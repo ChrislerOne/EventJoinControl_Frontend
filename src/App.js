@@ -1,4 +1,3 @@
-import './App.css';
 import {Routes, Route} from "react-router-dom";
 import HomeComponent from "./components/landingPage/Home"
 import LoginComponent from "./components/auth/Login";
@@ -13,6 +12,7 @@ import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {ProtectedRoute} from "./utils/ProtectedRoute";
 import {getUserType} from "./components/api/requests";
 import AllEventsComponent from "./components/events/allEvents";
+import UserEventsComponent from "./components/events/userEvents";
 
 function App(props) {
     // GLOBAL STATES
@@ -99,6 +99,11 @@ function App(props) {
                            userPermissionState={getParsedUserPermissionState()}/>}/>
                 <Route path="/events"
                        element={<AllEventsComponent
+                           app={app}
+                           setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
+                           userPermissionState={getParsedUserPermissionState()}/>}/>
+                <Route path="/user/events"
+                       element={<UserEventsComponent
                            app={app}
                            setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
                            userPermissionState={getParsedUserPermissionState()}/>}/>

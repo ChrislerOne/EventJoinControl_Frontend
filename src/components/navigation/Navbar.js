@@ -27,15 +27,28 @@ export default function NavbarComponent(props) {
 
     const NavPermission = () => {
         if (user && userPermissionState) {
-            if (userPermissionState.name === 'owner') {
-                return (
-                    <Nav className="me-auto">
-                        <Nav.Link as={Link} to="/organization">Meine Organisation</Nav.Link>
-                        <NavDropdown title='Events'>
-                            <NavDropdown.Item as={Link} to="/events">Veranstaltungen</NavDropdown.Item>
-                        </NavDropdown>
-                    </Nav>
-                )
+            switch(userPermissionState.name){
+                case 'owner':
+                    return (
+                        <Nav className="me-auto">
+                            <Nav.Link as={Link} to="/organization">Meine Organisation</Nav.Link>
+                            <NavDropdown title='Events'>
+                                <NavDropdown.Item as={Link} to="/events">Alle Events</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/user/events">Meine Events</NavDropdown.Item>
+                            </NavDropdown>
+                        </Nav>
+                    )
+                case 'user':
+                    return (
+                        <Nav className="me-auto">
+                            <NavDropdown title='Events'>
+                                <NavDropdown.Item as={Link} to="/events">Alle Events</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/user/events">Meine Events</NavDropdown.Item>
+                            </NavDropdown>
+                        </Nav>
+                    )
+                default:
+                    return(<div/>)
             }
         }
         return (<Nav className="me-auto"/>)

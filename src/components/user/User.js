@@ -66,7 +66,7 @@ export default function UserComponent(props) {
     return (
         <Container className="my-md-4">
             <h1>Hey {user.displayName} </h1>
-            <Row>
+            <Row xs={1} md={2}>
                 <Col>
                     <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
                         <h5 className="py-md-2 text-uppercase text-primary"> Account</h5>

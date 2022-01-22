@@ -4,9 +4,9 @@ import {deleteUserFromEvent, getAllEvents, getAllUserEvents, postAddUserToEvent}
 import {useSelector} from "react-redux";
 import {TailSpin} from "react-loader-spinner";
 import {toast} from "react-toastify";
+import {Link} from "react-router-dom";
 
-export default function AllEventsComponent(props) {
-    const [allEvents, setAllEvents] = useState([])
+export default function UserEventsComponent(props) {
     const [allUserEvents, setAllUserEvents] = useState([])
     const [render, setRender] = useState(false)
 
@@ -17,11 +17,6 @@ export default function AllEventsComponent(props) {
 
     useEffect(() => {
         if (user) {
-            getAllEvents(user).then((r) => {
-                if (r !== null) {
-                    setAllEvents(r);
-                }
-            })
             getAllUserEvents(user).then((r) => {
                 if (r !== null) {
                     setAllUserEvents(r);
@@ -30,18 +25,6 @@ export default function AllEventsComponent(props) {
         }
     }, [render])
 
-    const handleEnroll = (e) => {
-        e.preventDefault();
-        postAddUserToEvent(user, e.target.value).then(() => {
-            let bool;
-            bool = render !== true;
-            setRender(bool);
-            toast.success('Erfolgreich eingeschrieben!')
-        }).catch((err) => {
-            console.log(err);
-            toast.error('Sorry, wir konnten dich nicht eintragen. Probiere es doch später erneut!')
-        })
-    }
     const handleDelist = (e) => {
         e.preventDefault();
         deleteUserFromEvent(user, e.target.value).then(() => {
@@ -60,19 +43,15 @@ export default function AllEventsComponent(props) {
             <h3 className="text-primary">{props.name}</h3>
             <h6 className="text-secondary">{props.organization}</h6>
             <hr/>
-            {allUserEvents.filter(e => e.id === props.id).length === 0 ?
-                <Button variant="outline-secondary" onClick={handleEnroll} value={props.id}>Einschreiben</Button>
-                :
-                <Button variant="outline-danger" onClick={handleDelist} value={props.id}>Austragen</Button>
-            }
+            <Button variant="outline-danger" onClick={handleDelist} value={props.id}>Austragen</Button>
         </div>)
     }
 
     const AllEventCardComponent = () => {
         return (<div className="App">
             <Container>
-                <Row xs={1}  md={2}  lg={3}>
-                    {allEvents.map((e, i) => {
+                <Row xs={1} md={2} lg={3}>
+                    {allUserEvents.map((e, i) => {
                         return (<Col>
                             <EventCardComponent name={e.name} organization={e.organizationId.name} id={e.id}/>
                         </Col>)
@@ -84,17 +63,13 @@ export default function AllEventsComponent(props) {
 
     return (<div className="p-md-4">
             <h2 className="text-primary text-center text-uppercase py-md-4">
-                Alle Veranstaltungen
+                Meine Veranstaltungen
             </h2>
-            {allEvents.length !== 0 ?
+            {allUserEvents.length !== 0 ?
                 <AllEventCardComponent/>
                 :
-                <TailSpin
-                    width="110"
-                    height="110"
-                    color='grey'
-                    ariaLabel='loading'
-                />}
+                <div className="text-center text-secondary text-opacity-50">Uff, das ist aber leer. Trage dich
+                    doch <Link to='/events'>hier</Link> ein!</div>}
         </div>
 
     )
