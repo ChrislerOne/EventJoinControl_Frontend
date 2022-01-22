@@ -2,20 +2,26 @@ import {Button, Form} from "react-bootstrap"
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {getUserStatus} from "../api/requests";
+import {getUserType} from "../api/requests";
 
 export default function LoginComponent(props) {
-    const auth = getAuth(props.app)
+    const auth = getAuth()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigate = useNavigate();
 
-    const handleLogin = () => {
+    const handleLogin = (e) => {
+        e.preventDefault();
         signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
             const user = userCredential.user;
-            props.setUser(user);
-            props.setUserPermissionState(getUserStatus(user))
-            navigate('/');
+            getUserType(user).then((r) => {
+                    props.setUserPermissionState(r);
+                    console.log(r);
+                }
+            ).catch((r) => {
+                console.log(r);
+            })
+            navigate('/user');
         }).catch((error) => {
             console.log(error);
         })
@@ -25,7 +31,7 @@ export default function LoginComponent(props) {
         <div className="container h-100">
             <div className="row h-100 align-items-center">
                 <div className="col-12 text-center">
-                    <Form>
+                    <Form onSubmit={handleLogin}>
                         <h5>Willkommen zurück!</h5>
                         <Form.Group className="mb-3" controlId="formBasicEmail">
                             <Form.Control type="email"
@@ -44,7 +50,7 @@ export default function LoginComponent(props) {
                                               setPassword((e.target.value))
                                           }}/>
                         </Form.Group>
-                        <Button variant="primary" onClick={handleLogin}>
+                        <Button variant="primary" type="submit">
                             Login
                         </Button>
                     </Form>

@@ -1,21 +1,38 @@
-import {Button, Form} from "react-bootstrap"
-import {getAuth, createUserWithEmailAndPassword} from "firebase/auth";
+import {Button, Col, Form, Row} from "react-bootstrap"
+import {getAuth, createUserWithEmailAndPassword, updateProfile} from "firebase/auth";
 import {useState} from "react";
 import {toast} from "react-toastify";
-import {postRegisterUser} from "../api/requests";
+import {getUserType, postRegisterUser} from "../api/requests";
+import {useNavigate} from "react-router-dom";
 
 export default function SignUpComponent(props) {
     const auth = getAuth(props.app)
+    const navigate = useNavigate()
+
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [passwordRepeat, setPasswordRepeat] = useState("")
+    const [displayName, setDisplayName] = useState("")
 
-    const handleSignUp = () => {
+
+    const handleSignUp = (e) => {
+        e.preventDefault();
         if (password === passwordRepeat) {
             createUserWithEmailAndPassword(auth, email, password).then((userCredential) => {
                 const user = userCredential.user;
-                postRegisterUser(user);
-                props.setUser(user);
+                if (displayName !== '') {
+                    updateProfile(user, {displayName: displayName}).then(() => {
+                        console.log('Displayname gesetzt!')
+                    })
+                }
+                // DB Eintrag in die DB + initiale QR-Code Generierung.
+                postRegisterUser(user).then((r) => {
+                    props.setUser(auth.currentUser);
+                    getUserType(user).then((r) => {
+                        props.setUserPermissionState(r.data);
+                    })
+                    navigate('/user')
+                });
             }).catch((error) => {
                 console.log(error);
             })
@@ -27,21 +44,40 @@ export default function SignUpComponent(props) {
     }
 
     return (
-        <Form>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Control type="email"
-                              placeholder="name@provider.de"
-                              value={email}
-                              onChange={(e) => {
-                                  setEmail(e.target.value)
-                              }}/>
-                <Form.Text className="text-muted">
-                    Deine E-Mail-Adresse wird ausschließlich für die Authentifizierung benutzt!
-                </Form.Text>
-            </Form.Group>
-
+        <Form onSubmit={handleSignUp} className="my-3 mx-4">
+            <Row>
+                <Col>
+                    <Form.Label>E-Mail</Form.Label>
+                    <Form.Group className="mb-3" controlId="formBasicEmail">
+                        <Form.Control type="email"
+                                      required={true}
+                                      placeholder="name@provider.de"
+                                      value={email}
+                                      onChange={(e) => {
+                                          setEmail(e.target.value)
+                                      }}/>
+                        <Form.Text className="text-muted">
+                            Deine E-Mail-Adresse wird ausschließlich für die Authentifizierung benutzt!
+                        </Form.Text>
+                    </Form.Group>
+                </Col>
+                <Col>
+                    <Form.Label>Name</Form.Label>
+                    <Form.Group className="mb-3" controlId="formBasicDisplayName">
+                        <Form.Control type="text"
+                                      required={false}
+                                      placeholder="Wie sollen wir dich nennne?"
+                                      value={displayName}
+                                      onChange={(e) => {
+                                          setDisplayName(e.target.value)
+                                      }}/>
+                    </Form.Group>
+                </Col>
+            </Row>
+            <Form.Label>Passwort</Form.Label>
             <Form.Group className="mb-3" controlId="formBasicPassword">
                 <Form.Control type="password"
+                              required={true}
                               placeholder="Passwort"
                               value={password}
                               onChange={(e) => {
@@ -50,13 +86,14 @@ export default function SignUpComponent(props) {
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicPasswordRepeat">
                 <Form.Control type="password"
+                              required={true}
                               placeholder="Passwort wiederholen"
                               value={passwordRepeat}
                               onChange={(e) => {
                                   setPasswordRepeat((e.target.value))
                               }}/>
             </Form.Group>
-            <Button variant="primary" onClick={handleSignUp}>
+            <Button variant="primary" type="submit">
                 Los geht's!
             </Button>
         </Form>

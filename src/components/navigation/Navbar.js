@@ -1,22 +1,44 @@
 import {Container, Nav, NavDropdown, Navbar} from "react-bootstrap";
-import {BoxArrowDownLeft, BoxArrowInRight, BoxArrowRight} from "react-bootstrap-icons"
-import {Link} from "react-router-dom";
+import {BoxArrowRight} from "react-bootstrap-icons"
+import {Link, useNavigate} from "react-router-dom";
 import {getAuth, signOut} from "firebase/auth";
 import {toast} from "react-toastify";
 import LoginComponent from "../auth/Login";
 import React from "react";
+import {useSelector} from "react-redux";
 
 export default function NavbarComponent(props) {
-    let user = props.user;
+    let user = useSelector((state) => state.auth.value);
+    let userPermissionState = props.userPermissionState;
+
+    if (user) {
+        user = JSON.parse(user);
+    }
+
+    const navigate = useNavigate();
 
     const handleLogout = () => {
         signOut(getAuth(props.app)).then(() => {
-                localStorage.clear()
-                props.setUser(undefined);
-                toast.success('Bis bald! ')
+                navigate('/')
+                toast.success('Bis bald!')
             }
         );
+    }
 
+    const NavPermission = () => {
+        if (user && userPermissionState) {
+            if (userPermissionState.name === 'owner') {
+                return (
+                    <Nav className="me-auto">
+                        <Nav.Link as={Link} to="/organization">Meine Organisation</Nav.Link>
+                        <NavDropdown title='Events'>
+                            <NavDropdown.Item as={Link} to="/events">Veranstaltungen</NavDropdown.Item>
+                        </NavDropdown>
+                    </Nav>
+                )
+            }
+        }
+        return (<Nav className="me-auto"/>)
     }
 
     return (
@@ -25,32 +47,26 @@ export default function NavbarComponent(props) {
                 <Navbar.Brand as={Link} to="/">EvJoCo </Navbar.Brand>
                 <Navbar.Toggle aria-controls="responsive-navbar-nav"/>
                 <Navbar.Collapse id="responsive-navbar-nav">
-                    {user ?
-                        <Nav className="me-auto">
-                            <Nav.Link href="#features">Features</Nav.Link>
-                            <Nav.Link href="#pricing">Pricing</Nav.Link>
-                            <NavDropdown title="Verwaltung" id="collasible-nav-dropdown">
-                                <NavDropdown.Item href="#action/3.1">Organisation</NavDropdown.Item>
-                                <NavDropdown.Item href="#action/3.2">Veranstaltungen</NavDropdown.Item>
-                                <NavDropdown.Item href="#action/3.3">Status</NavDropdown.Item>
-                            </NavDropdown>
-                        </Nav>
-                        : <Nav className="me-auto"/>
-                    }
+                    <NavPermission/>
                     <Navbar.Collapse className="justify-content-end">
                         {user ?
                             <Nav>
                                 <Navbar.Text>
-                                    Signed in as: <Link as={Link} to="/user">{user.email}</Link>
+                                    <div className="mx-md-3">
+                                        Signed in as: <Link as={Link} to="/user">{user.email}</Link>
+                                    </div>
                                 </Navbar.Text>
-                                <Nav.Link onClick={handleLogout}><BoxArrowRight/>Logout</Nav.Link>
+                                <Nav.Link
+                                    onClick={handleLogout}><BoxArrowRight/>Logout
+                                </Nav.Link>
                             </Nav>
                             :
                             <Nav>
                                 <NavDropdown title="Login"><LoginComponent
-                                    setUser={(user) => props.setUser(user)}
-                                    user={props.user}
-                                    app={props.app}/>
+                                    setReloadUser={props.setReloadUser}
+                                    app={props.app}
+                                    setUserPermissionState={(userPermissionState) => props.setUserPermissionState(userPermissionState)}
+                                    userPermissionState={props.userPermissionState}/>
                                 </NavDropdown>
                                 <Nav.Link as={Link} to="/signup">
                                     <div style={{marginLeft: "6px"}}>Sign Up</div>
