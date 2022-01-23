@@ -3,8 +3,8 @@ import axios from "axios";
 const baseURL = "http://127.0.0.1:8090/"
 
 // GET REQUESTS
-export const getUserType = async (user) => {
-    const url = baseURL + 'usertype/get?idToken=' + user.stsTokenManager.accessToken;
+export const getUserPermission = async (user) => {
+    const url = baseURL + 'user/permissions?idToken=' + user.stsTokenManager.accessToken;
     const res = await axios.get(url);
     return await res.data;
 }
@@ -27,6 +27,11 @@ export const getAllEvents = async (user) => {
     return res.data;
 }
 
+export const getAllOrganizations = async (user) => {
+    const url = baseURL + 'organizations/list?idToken=' + user.stsTokenManager.accessToken;
+    const res = await axios.get(url);
+    return res.data;
+}
 
 // POST REQUESTS
 export const postRegisterUser = async (user) => {

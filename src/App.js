@@ -1,4 +1,4 @@
-import {Routes, Route} from "react-router-dom";
+import {Routes, Route, Link} from "react-router-dom";
 import HomeComponent from "./components/landingPage/Home"
 import LoginComponent from "./components/auth/Login";
 import React, {useEffect, useState} from "react";
@@ -10,14 +10,16 @@ import {useDispatch, useSelector} from "react-redux";
 import {saveUser} from "./utils/store/authSlice";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {ProtectedRoute} from "./utils/ProtectedRoute";
-import {getUserType} from "./components/api/requests";
+import {getAllOrganizations, getUserPermission} from "./components/api/requests";
 import AllEventsComponent from "./components/events/allEvents";
 import UserEventsComponent from "./components/events/userEvents";
+import UserOrganizationsComponent from "./components/organization/UserOrganizations";
 
 function App(props) {
     // GLOBAL STATES
-    const [userPermissionState, setUserPermissionState] = useState(undefined)
+    const [userPermissionState, setUserPermissionState] = useState()
     const [reloadUser, setReloadUser] = useState(false);
+    const [organziations, setOrganizations] = useState([{'id': 1}]);
 
     // Redux
     const dispatch = useDispatch()
@@ -35,10 +37,17 @@ function App(props) {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 dispatch(saveUser(JSON.stringify(user)));
+                getAllOrganizations(user).then((r) => {
+                    console.log(r)
+                    setOrganizations(r);
+                }).catch((err) => {
+                    console.log(err);
+                })
             } else {
                 dispatch(saveUser(undefined));
             }
         });
+
     }, [auth, dispatch, reloadUser]);
 
     // STATE RELATED FUNCTIONS
@@ -57,7 +66,7 @@ function App(props) {
     useEffect(() => {
         console.log(user);
         if (user) {
-            getUserType(user).then((r) => {
+            getUserPermission(user).then((r) => {
                 setUserPermissionState(JSON.stringify(r));
             })
         }
@@ -69,7 +78,10 @@ function App(props) {
             app={app}
             setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
             userPermissionState={getParsedUserPermissionState()}/>
+
+
         <Routes>
+
             <Route path="/"
                    element={<HomeComponent
                        setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
@@ -92,9 +104,13 @@ function App(props) {
                            app={app}
                            setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
                            userPermissionState={getParsedUserPermissionState()}/>}/>
-                <Route path="/organization"
-                       element={<OrganizationComponent
+                <Route path="/organizations"
+                       element={<UserOrganizationsComponent
                            app={app}
+                           setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
+                           userPermissionState={getParsedUserPermissionState()}/>}/>
+                <Route path="/organization/:organizationId"
+                       element={<OrganizationComponent
                            setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
                            userPermissionState={getParsedUserPermissionState()}/>}/>
                 <Route path="/events"

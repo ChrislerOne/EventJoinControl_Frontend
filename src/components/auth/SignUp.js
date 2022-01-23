@@ -2,7 +2,7 @@ import {Button, Col, Form, Row} from "react-bootstrap"
 import {getAuth, createUserWithEmailAndPassword, updateProfile} from "firebase/auth";
 import {useState} from "react";
 import {toast} from "react-toastify";
-import {getUserType, postRegisterUser} from "../api/requests";
+import {getUserPermission, postRegisterUser} from "../api/requests";
 import {useNavigate} from "react-router-dom";
 
 export default function SignUpComponent(props) {
@@ -28,7 +28,7 @@ export default function SignUpComponent(props) {
                 // DB Eintrag in die DB + initiale QR-Code Generierung.
                 postRegisterUser(user).then((r) => {
                     props.setUser(auth.currentUser);
-                    getUserType(user).then((r) => {
+                    getUserPermission(user).then((r) => {
                         props.setUserPermissionState(r.data);
                     })
                     navigate('/user')

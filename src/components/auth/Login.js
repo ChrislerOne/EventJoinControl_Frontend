@@ -2,7 +2,7 @@ import {Button, Form} from "react-bootstrap"
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {getUserType} from "../api/requests";
+import {getUserPermission} from "../api/requests";
 
 export default function LoginComponent(props) {
     const auth = getAuth()
@@ -14,7 +14,7 @@ export default function LoginComponent(props) {
         e.preventDefault();
         signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
             const user = userCredential.user;
-            getUserType(user).then((r) => {
+            getUserPermission(user).then((r) => {
                     props.setUserPermissionState(r);
                     console.log(r);
                 }
