@@ -27,7 +27,6 @@ export default function SignUpComponent(props) {
                 }
                 // DB Eintrag in die DB + initiale QR-Code Generierung.
                 postRegisterUser(user).then((r) => {
-                    props.setUser(auth.currentUser);
                     getUserPermission(user).then((r) => {
                         props.setUserPermissionState(r.data);
                     })
