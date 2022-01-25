@@ -1,6 +1,10 @@
 import axios from "axios";
 
+// LOKAL
 const baseURL = "http://127.0.0.1:8090/"
+
+// LIVE
+// const baseURL = "http://23.88.47.71:8090/"
 
 // GET REQUESTS
 export const getAllUserTypes = async (user) => {
@@ -46,11 +50,35 @@ export const getAllEventsByOrganizationId = async (user, organizationId) => {
     return res.data;
 }
 
+
+export const getUserByIdToken = async (user) => {
+    const url = baseURL + 'user/getByIdToken?idToken=' + user.stsTokenManager.accessToken;
+    const res = await axios.get(url);
+    return res.data;
+}
+
+
+export const getStatusByToken = async (qrCode) => {
+    const url = baseURL + 'getStatus/' + qrCode
+    const res = await axios.get(url);
+    return res.data;
+}
+
 // POST REQUESTS
 export const postRegisterUser = async (user) => {
     const url = baseURL + 'authentication/registerUser'
     const data = {
         "email": user.email, "idToken": user.stsTokenManager.accessToken
+    }
+    const res = await axios.post(url, data)
+    return res.data;
+}
+
+export const postCreateOrganization = async (user, name, description) => {
+    const url = baseURL + 'organizations/add?idToken=' + user.stsTokenManager.accessToken;
+    const data = {
+        "name": name,
+        "description": description
     }
     const res = await axios.post(url, data)
     return res.data;
@@ -88,6 +116,17 @@ export const postGrantPermissionForSpecificOrganization = async (user, email, or
     return res.data;
 }
 
+export const postReportCoronaPositive = async (user) => {
+    const url = baseURL + 'user/positiveuser?idToken=' + user.stsTokenManager.accessToken;
+    const res = await axios.post(url)
+    return res.data;
+}
+
+export const postRefreshState = async (user) => {
+    const url = baseURL + 'user/refreshstatus?idToken=' + user.stsTokenManager.accessToken;
+    const res = await axios.post(url)
+    return res.data;
+}
 
 // DELETE REQUESTS
 export const deleteUserFromEvent = async (user, eventId) => {

@@ -39,7 +39,7 @@ export default function AllEventsComponent(props) {
             toast.success('Erfolgreich eingeschrieben!')
         }).catch((err) => {
             console.log(err);
-            toast.error('Sorry, wir konnten dich nicht eintragen. Probiere es doch später erneut!')
+            toast.error('Sorry, wir konnten dich nicht eintragen. Überprüfe bitte deinen Covid-Status!')
         })
     }
     const handleDelist = (e) => {
@@ -71,7 +71,7 @@ export default function AllEventsComponent(props) {
     const AllEventCardComponent = () => {
         return (<div className="App">
             <Container>
-                <Row xs={1}  md={2}  lg={3}>
+                <Row xs={1} md={2} lg={3}>
                     {allEvents.map((e, i) => {
                         return (<Col>
                             <EventCardComponent name={e.name} organization={e.organizationId.name} id={e.id}/>

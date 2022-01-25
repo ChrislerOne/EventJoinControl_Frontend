@@ -1,9 +1,13 @@
 import {Button, Col, Container, Row} from "react-bootstrap";
 import {useSelector} from "react-redux";
 import {Link, Navigate, Outlet, useNavigate} from 'react-router-dom';
+import NewOrganizationForm from "./NewOrganizationForm";
 
 export default function UserOrganizationsComponent(props) {
-    const userOrgs = props.userPermissionState.filter(e => e.userType.name === 'owner')
+    let userOrgs;
+    if (props.userPermissionState) {
+        userOrgs = props.userPermissionState.filter(e => e.userType.name === 'owner')
+    }
     const navigate = useNavigate();
 
     let user = useSelector((state) => state.auth.value);
@@ -13,7 +17,6 @@ export default function UserOrganizationsComponent(props) {
 
 
     const OrganizationCard = (props) => {
-
         const handleClick = (id) => {
             navigate('/organization/' + id)
         }
@@ -41,7 +44,7 @@ export default function UserOrganizationsComponent(props) {
                     })}
                     <Col>
                         <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
-                            Neue Org erstellen
+                            <NewOrganizationForm user={user} reload={props.reload}/>
                         </div>
                     </Col>
                 </Row>

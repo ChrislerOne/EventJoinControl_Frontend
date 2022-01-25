@@ -22,7 +22,7 @@ export default function SignUpComponent(props) {
                 const user = userCredential.user;
                 if (displayName !== '') {
                     updateProfile(user, {displayName: displayName}).then(() => {
-                        console.log('Displayname gesetzt!')
+                        toast.success('Dein Name wurde geändert!')
                     })
                 }
                 // DB Eintrag in die DB + initiale QR-Code Generierung.

@@ -3,6 +3,7 @@ import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {getUserPermission} from "../api/requests";
+import {toast} from "react-toastify";
 
 export default function LoginComponent(props) {
     const auth = getAuth()
@@ -16,14 +17,13 @@ export default function LoginComponent(props) {
             const user = userCredential.user;
             getUserPermission(user).then((r) => {
                     props.setUserPermissionState(r);
-                    console.log(r);
                 }
-            ).catch((r) => {
-                console.log(r);
+            ).catch((err) => {
+                console.log(err);
             })
             navigate('/user');
         }).catch((error) => {
-            console.log(error);
+            toast.error('Deine Zugangsdaten scheinen falsch zu sein. Probere es erneut!')
         })
     }
 

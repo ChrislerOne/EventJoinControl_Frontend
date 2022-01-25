@@ -8,6 +8,7 @@ import {useSelector} from "react-redux";
 import BootstrapTable from "react-bootstrap-table-next";
 import {toast} from "react-toastify";
 import {AddUserToOrganizationComponent} from "./AddUserToOrganization";
+import {TailSpin} from "react-loader-spinner";
 
 export default function OrganizationComponent(props) {
     const [tableData, setTableData] = useState([]);
@@ -23,7 +24,6 @@ export default function OrganizationComponent(props) {
 
     useEffect(() => {
         getAllEventsByOrganizationId(user, organizationId).then((r) => {
-            console.log(r);
             setTableData(r);
         })
     }, [render])
@@ -32,34 +32,27 @@ export default function OrganizationComponent(props) {
         return (<Button onClick={() => handleDeleteEvent(row.id)} variant="outline-danger"><Trash/></Button>)
     }
 
+    const formatDate = (cell, row, rowIndex, formatExtraData) => {
+        const date = new Date(cell);
+        return (<>{date.toLocaleDateString('de-DE')} {date.toLocaleTimeString('de-DE')} Uhr</>)
+    }
+
     const columns = [{
-        dataField: 'organizationId.name',
-        text: 'Organisation',
-        sort: true
+        dataField: 'organizationId.name', text: 'Organisation', sort: true
     }, {
-        dataField: 'name',
-        text: 'Veranstaltung',
-        sort: true
+        dataField: 'name', text: 'Veranstaltung', sort: true
     }, {
-        dataField: 'eventStart',
-        text: 'Start',
-        sort: true
+        dataField: 'eventStart', text: 'Start', sort: true, formatter: formatDate
     }, {
-        dataField: 'eventEnd',
-        text: 'Ende',
-        sort: true
+        dataField: 'eventEnd', text: 'Ende', sort: true, formatter: formatDate
     }, {
-        dataField: 'stateId.name',
-        text: 'Status',
-        sort: true
+        dataField: 'stateId.name', text: 'Status', sort: true
     }, {
-        dataField: "delete",
-        formatter: deleteButton
+        dataField: "delete", formatter: deleteButton
     }]
 
     const defaultSorted = [{
-        dataField: 'stateId.name',
-        order: 'desc'
+        dataField: 'stateId.name', order: 'desc'
     }];
 
 
@@ -76,47 +69,46 @@ export default function OrganizationComponent(props) {
         })
     }
 
-    return (
-        <Container>
-            <Row>
-                <h1 className="text-primary text-uppercase p-3">
-                    <ArrowLeftCircleFill className="p-3" size={70} color="#1a6aeb"
-                                         as={Button}
-                                         onClick={() => navigate(-1)}
-                    />{organizationObj.organization.name}
-                </h1>
-            </Row>
-            <Row className="py-4" xs={1} md={2}>
-                <Col>
-                    <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
-                        <h3 className="text-secondary text text-uppercase">User Verwaltung</h3>
-                        <AddUserToOrganizationComponent
-                            organizationId={organizationId}/>
-                    </div>
-                </Col>
-                <Col>
-                    <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
-                        <h3 className="text-secondary text text-uppercase">Neues Event</h3>
-                        <NewEventFormComponent
-                            setRender={rerender}
-                            organizationId={organizationId}/>
-                    </div>
-                </Col>
-            </Row>
-            <Row xs={1}>
-                <Col>
-                    <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
-                        <h3 className="text-secondary text text-uppercase">Alle Events</h3>
-                        {/*{tableData === [] ?*/}
-                        <BootstrapTable keyField='id'
-                                        data={tableData}
-                                        columns={columns}
-                                        defaultSorted={defaultSorted}/>
-                        {/*: <p className="text-secondary text-center">Es sind noch keine Events vorhanden</p>}*/}
-                    </div>
-                </Col>
-            </Row>
-        </Container>
-    )
+    return (<Container>
+        <Row>
+            <h1 className="text-primary text-uppercase p-3">
+                <ArrowLeftCircleFill className="p-3" size={70} color="#1a6aeb"
+                                     as={Button}
+                                     onClick={() => navigate(-1)}
+                />{organizationObj.organization.name}
+            </h1>
+        </Row>
+        <Row className="py-4" xs={1} md={2}>
+            <Col>
+                <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
+                    <h3 className="text-secondary text text-uppercase">User Verwaltung</h3>
+                    <AddUserToOrganizationComponent
+                        organizationId={organizationId}/>
+                </div>
+            </Col>
+            <Col>
+                <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
+                    <h3 className="text-secondary text text-uppercase">Neues Event</h3>
+                    <NewEventFormComponent
+                        setRender={rerender}
+                        organizationId={organizationId}/>
+                </div>
+            </Col>
+        </Row>
+        <Row xs={1}>
+            <Col>
+                <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
+                    <h3 className="text-secondary text text-uppercase">Alle Events</h3>
+                    {/*{tableData === [] ?*/}
+                    <BootstrapTable keyField='id'
+                                    data={tableData}
+                                    columns={columns}
+                                    defaultSorted={defaultSorted}
+                                    noDataIndication={<TailSpin color="grey"/>}/>
+                    {/*: <p className="text-secondary text-center">Es sind noch keine Events vorhanden</p>}*/}
+                </div>
+            </Col>
+        </Row>
+    </Container>)
 
 }

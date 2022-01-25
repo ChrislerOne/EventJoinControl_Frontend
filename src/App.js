@@ -14,12 +14,15 @@ import {getAllOrganizations, getUserPermission} from "./components/api/requests"
 import AllEventsComponent from "./components/events/allEvents";
 import UserEventsComponent from "./components/events/userEvents";
 import UserOrganizationsComponent from "./components/organization/UserOrganizations";
+import QrCodeCheckComponent from "./components/qr/checkQrCode";
 
 function App(props) {
     // GLOBAL STATES
     const [userPermissionState, setUserPermissionState] = useState()
     const [reloadUser, setReloadUser] = useState(false);
+    const [render, setRender] = useState(false);
     const [organziations, setOrganizations] = useState([{'id': 1}]);
+
 
     // Redux
     const dispatch = useDispatch()
@@ -38,7 +41,6 @@ function App(props) {
             if (user) {
                 dispatch(saveUser(JSON.stringify(user)));
                 getAllOrganizations(user).then((r) => {
-                    console.log(r)
                     setOrganizations(r);
                 }).catch((err) => {
                     console.log(err);
@@ -64,13 +66,12 @@ function App(props) {
     }
 
     useEffect(() => {
-        console.log(user);
         if (user) {
             getUserPermission(user).then((r) => {
                 setUserPermissionState(JSON.stringify(r));
             })
         }
-    }, [user])
+    }, [user, render])
 
 
     return (<>
@@ -96,6 +97,11 @@ function App(props) {
                        app={app}
                        setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
                        userPermissionState={getParsedUserPermissionState()}/>}/>
+            <Route path="/checkQrCode/:qrCode"
+                   element={<QrCodeCheckComponent
+                       app={app}
+                       setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
+                       userPermissionState={getParsedUserPermissionState()}/>}/>
             <Route path="/" element={<ProtectedRoute/>}>
                 <Route path="/user"
                        element={<UserComponent
@@ -107,6 +113,10 @@ function App(props) {
                 <Route path="/organizations"
                        element={<UserOrganizationsComponent
                            app={app}
+                           reload={() => {
+                               let bool = render === false;
+                               setRender(bool);
+                           }}
                            setUserPermissionState={(userPermissionState) => defineUserPermissionState(userPermissionState)}
                            userPermissionState={getParsedUserPermissionState()}/>}/>
                 <Route path="/organization/:organizationId"
