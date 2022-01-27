@@ -4,7 +4,7 @@ import axios from "axios";
 const baseURL = "http://127.0.0.1:8090/"
 
 // LIVE
-// const baseURL = "http://23.88.47.71:8090/"
+// const baseURL = "https://ejc-api.xn--fd-fkaa.de/"
 
 // GET REQUESTS
 export const getAllUserTypes = async (user) => {
@@ -43,13 +43,11 @@ export const getAllOrganizations = async (user) => {
     return res.data;
 }
 
-
 export const getAllEventsByOrganizationId = async (user, organizationId) => {
     const url = baseURL + 'events/getbyorganization?idToken=' + user.stsTokenManager.accessToken + '&organizationId=' + organizationId;
     const res = await axios.get(url);
     return res.data;
 }
-
 
 export const getUserByIdToken = async (user) => {
     const url = baseURL + 'user/getByIdToken?idToken=' + user.stsTokenManager.accessToken;
@@ -57,9 +55,14 @@ export const getUserByIdToken = async (user) => {
     return res.data;
 }
 
-
 export const getStatusByToken = async (qrCode) => {
     const url = baseURL + 'getStatus/' + qrCode
+    const res = await axios.get(url);
+    return res.data;
+}
+
+export const getUsersByOrganization = async (user, organizationId) => {
+    const url = baseURL + 'organization/user/list?idToken=' + user.stsTokenManager.accessToken + '&organizationid=' + organizationId
     const res = await axios.get(url);
     return res.data;
 }
@@ -140,6 +143,20 @@ export const deleteUserFromEvent = async (user, eventId) => {
 
 export const deleteEvent = async (user, eventId) => {
     const url = baseURL + 'events/delete?idToken=' + user.stsTokenManager.accessToken + "&eventId=" + eventId;
+    const res = await axios.delete(url)
+    return res.data;
+}
+
+
+export const deleteOrganization = async (user, organizationId) => {
+    const url = baseURL + 'organizations/delete?idToken=' + user.stsTokenManager.accessToken + "&organizationid=" + organizationId;
+    const res = await axios.delete(url)
+    return res.data;
+}
+
+
+export const revokePermissionFromUser = async (user, orgausertypeid) => {
+    const url = baseURL + 'user/revokeOrganizationPermission?idToken=' + user.stsTokenManager.accessToken + "&orgausertypeid=" + orgausertypeid;
     const res = await axios.delete(url)
     return res.data;
 }

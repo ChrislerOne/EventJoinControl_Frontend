@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './theme.scss'
 import {BrowserRouter} from "react-router-dom";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -12,6 +13,7 @@ import {Provider} from "react-redux";
 import store from './utils/store/store'
 import {initializeApp} from "firebase/app";
 import {firebaseConfig} from "./configs/firebaseConfig";
+
 
 // FIREBASE
 const app = initializeApp(firebaseConfig)

@@ -81,10 +81,17 @@ export default function UserComponent(props) {
 
     const UserState = () => {
         if (userDetails) {
-            if (userDetails.state.name !== 'unverified') {
-                return (<p className="text-danger">{userDetails.state.name}</p>)
-            } else {
-                return (<p className="text-primary">{userDetails.state.name}</p>)
+            switch (userDetails.state.name) {
+                case 'COVID-19 positive':
+                    return (<p className="text-danger">{userDetails.state.name}</p>)
+                case 'restricted':
+                    return (<p className="text-danger">{userDetails.state.name}</p>)
+                case 'vaccinated':
+                    return (<p className="text-primary">{userDetails.state.name}</p>)
+                case 'verified':
+                    return (<p className="text-primary">{userDetails.state.name}</p>)
+                default:
+                    return (<p className="text-warning">{userDetails.state.name}</p>)
             }
         }
         return (<></>)

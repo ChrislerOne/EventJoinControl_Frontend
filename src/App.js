@@ -1,5 +1,5 @@
 import {Routes, Route, Link} from "react-router-dom";
-import HomeComponent from "./components/landingPage/Home"
+import HomeComponent from './components/home/home'
 import LoginComponent from "./components/auth/Login";
 import React, {useEffect, useState} from "react";
 import SignUpComponent from "./components/auth/SignUp";

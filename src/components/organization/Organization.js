@@ -3,7 +3,12 @@ import {NewEventFormComponent} from "../events/newEventForm";
 import {useParams, useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {ArrowLeftCircleFill, Trash, Trash2Fill} from "react-bootstrap-icons";
-import {deleteEvent, getAllEventsByOrganizationId} from "../api/requests";
+import {
+    deleteEvent,
+    getAllEventsByOrganizationId,
+    getUsersByOrganization,
+    revokePermissionFromUser
+} from "../api/requests";
 import {useSelector} from "react-redux";
 import BootstrapTable from "react-bootstrap-table-next";
 import {toast} from "react-toastify";
@@ -12,6 +17,7 @@ import {TailSpin} from "react-loader-spinner";
 
 export default function OrganizationComponent(props) {
     const [tableData, setTableData] = useState([]);
+    const [userTableData, setUserTableData] = useState([]);
     const [render, setRender] = useState(false);
     const {organizationId} = useParams()
     const organizationObj = props.userPermissionState.filter(e => e.organization.id === parseInt(organizationId))[0];
@@ -25,11 +31,18 @@ export default function OrganizationComponent(props) {
     useEffect(() => {
         getAllEventsByOrganizationId(user, organizationId).then((r) => {
             setTableData(r);
-        })
+        });
+        getUsersByOrganization(user, organizationId).then((r) => {
+            setUserTableData(r);
+        });
     }, [render])
 
     const deleteButton = (cell, row, rowIndex, formatExtraData) => {
         return (<Button onClick={() => handleDeleteEvent(row.id)} variant="outline-danger"><Trash/></Button>)
+    }
+
+    const deleteUserButton = (cell, row, rowIndex, formatExtraData) => {
+        return (<Button onClick={() => handleDeleteUserPermission(row.id)} variant="outline-danger"><Trash/></Button>)
     }
 
     const formatDate = (cell, row, rowIndex, formatExtraData) => {
@@ -37,7 +50,7 @@ export default function OrganizationComponent(props) {
         return (<>{date.toLocaleDateString('de-DE')} {date.toLocaleTimeString('de-DE')} Uhr</>)
     }
 
-    const columns = [{
+    const columnsEvents = [{
         dataField: 'organizationId.name', text: 'Organisation', sort: true
     }, {
         dataField: 'name', text: 'Veranstaltung', sort: true
@@ -51,7 +64,15 @@ export default function OrganizationComponent(props) {
         dataField: "delete", formatter: deleteButton
     }]
 
-    const defaultSorted = [{
+    const columnsUserTable = [{
+        dataField: 'user.email', text: 'E-Mail', sort: true
+    }, {
+        dataField: 'userType.name', text: 'permission', sort: true
+    }, {
+        dataField: "delete", text: 'Aktion', formatter: deleteUserButton
+    }]
+
+    const defaultSortedEvents = [{
         dataField: 'stateId.name', order: 'desc'
     }];
 
@@ -69,10 +90,17 @@ export default function OrganizationComponent(props) {
         })
     }
 
+    const handleDeleteUserPermission = (id) => {
+        revokePermissionFromUser(user, id).then(() => {
+            toast.success('User wurde aus der Organisation entfernt.');
+            rerender();
+        })
+    }
+
     return (<Container>
         <Row>
             <h1 className="text-primary text-uppercase p-3">
-                <ArrowLeftCircleFill className="p-3" size={70} color="#1a6aeb"
+                <ArrowLeftCircleFill className="p-3" size={70} color="#6222CC"
                                      as={Button}
                                      onClick={() => navigate(-1)}
                 />{organizationObj.organization.name}
@@ -83,7 +111,15 @@ export default function OrganizationComponent(props) {
                 <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
                     <h3 className="text-secondary text text-uppercase">User Verwaltung</h3>
                     <AddUserToOrganizationComponent
+                        render = {() => rerender()}
                         organizationId={organizationId}/>
+                    <div className="py-3">
+                        <BootstrapTable
+                            keyField='id'
+                            data={userTableData}
+                            columns={columnsUserTable}
+                            noDataIndication={<TailSpin color="grey"/>}/>
+                    </div>
                 </div>
             </Col>
             <Col>
@@ -102,8 +138,8 @@ export default function OrganizationComponent(props) {
                     {/*{tableData === [] ?*/}
                     <BootstrapTable keyField='id'
                                     data={tableData}
-                                    columns={columns}
-                                    defaultSorted={defaultSorted}
+                                    columns={columnsEvents}
+                                    defaultSorted={defaultSortedEvents}
                                     noDataIndication={<TailSpin color="grey"/>}/>
                     {/*: <p className="text-secondary text-center">Es sind noch keine Events vorhanden</p>}*/}
                 </div>

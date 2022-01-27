@@ -2,11 +2,13 @@ import {Button, Col, Container, Row} from "react-bootstrap";
 import {useSelector} from "react-redux";
 import {Link, Navigate, Outlet, useNavigate} from 'react-router-dom';
 import NewOrganizationForm from "./NewOrganizationForm";
+import {deleteOrganization} from "../api/requests";
+import {toast} from "react-toastify";
 
 export default function UserOrganizationsComponent(props) {
     let userOrgs;
     if (props.userPermissionState) {
-        userOrgs = props.userPermissionState.filter(e => e.userType.name === 'owner')
+        userOrgs = props.userPermissionState.filter(e => e.userType.name === 'owner' || e.userType.name === 'staff')
     }
     const navigate = useNavigate();
 
@@ -21,12 +23,21 @@ export default function UserOrganizationsComponent(props) {
             navigate('/organization/' + id)
         }
 
+        const handleDeleteOrganization = (id) => {
+            deleteOrganization(user, id).then(() => {
+                toast.success('Deine Organization wurde erfolgreich gelöscht!');
+                props.reload();
+            })
+        }
+
         return (<div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
             <h3 className="text-primary">{props.organization}</h3>
             <hr/>
             <Button variant="outline-primary" onClick={() => {
                 handleClick(props.id)
             }}>Anzeigen</Button>
+            <Button className="mx-3" variant="outline-danger"
+                    onClick={() => handleDeleteOrganization(props.id)}>LÖSCHEN</Button>
         </div>)
     }
 
@@ -35,12 +46,12 @@ export default function UserOrganizationsComponent(props) {
             <Container>
                 <Row xs={1}>
                     {userOrgs.map((e, i) => {
-                        return (
-                            <Col>
-                                <OrganizationCard userPermissionState={props.userPermissionState}
-                                                  name={e.organization.id}
-                                                  organization={e.organization.name} id={e.organization.id}/>
-                            </Col>)
+                        return (<Col>
+                            <OrganizationCard userPermissionState={props.userPermissionState}
+                                              name={e.organization.id}
+                                              organization={e.organization.name} id={e.organization.id}
+                                              reload={props.reload}/>
+                        </Col>)
                     })}
                     <Col>
                         <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
