@@ -4,8 +4,8 @@ import {useParams, useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {ArrowLeftCircleFill, Trash, Trash2Fill} from "react-bootstrap-icons";
 import {
-    deleteEvent,
-    getAllEventsByOrganizationId,
+    deleteEvent, deleteOrganizationState, delteOrganizationState,
+    getAllEventsByOrganizationId, getAllStatesAllowedByOrganization,
     getUsersByOrganization,
     revokePermissionFromUser
 } from "../api/requests";
@@ -13,11 +13,13 @@ import {useSelector} from "react-redux";
 import BootstrapTable from "react-bootstrap-table-next";
 import {toast} from "react-toastify";
 import {AddUserToOrganizationComponent} from "./AddUserToOrganization";
-import {TailSpin} from "react-loader-spinner";
+import {TailSpin, ThreeDots} from "react-loader-spinner";
+import {AddStateToOrgForm} from "./AddStateToOrgForm";
 
 export default function OrganizationComponent(props) {
     const [tableData, setTableData] = useState([]);
     const [userTableData, setUserTableData] = useState([]);
+    const [orgStates, setOrgStates] = useState([])
     const [render, setRender] = useState(false);
     const {organizationId} = useParams()
     const organizationObj = props.userPermissionState.filter(e => e.organization.id === parseInt(organizationId))[0];
@@ -35,14 +37,26 @@ export default function OrganizationComponent(props) {
         getUsersByOrganization(user, organizationId).then((r) => {
             setUserTableData(r);
         });
+        getAllStatesAllowedByOrganization(user, organizationId).then((r) => {
+            console.log(r);
+            setOrgStates(r);
+        });
     }, [render])
 
     const deleteButton = (cell, row, rowIndex, formatExtraData) => {
         return (<Button onClick={() => handleDeleteEvent(row.id)} variant="outline-danger"><Trash/></Button>)
     }
+    const deleteStateButton = (cell, row, rowIndex, formatExtraData) => {
+        return (<Button onClick={() => handleDeleteState(row.id)} variant="outline-danger"><Trash/></Button>)
+    }
 
     const deleteUserButton = (cell, row, rowIndex, formatExtraData) => {
-        return (<Button onClick={() => handleDeleteUserPermission(row.id)} variant="outline-danger"><Trash/></Button>)
+        if (row.userType.name !== 'owner') {
+            return (
+                <Button onClick={() => handleDeleteUserPermission(row.id)} variant="outline-danger"><Trash/></Button>)
+        } else {
+            return (<></>)
+        }
     }
 
     const formatDate = (cell, row, rowIndex, formatExtraData) => {
@@ -67,9 +81,15 @@ export default function OrganizationComponent(props) {
     const columnsUserTable = [{
         dataField: 'user.email', text: 'E-Mail', sort: true
     }, {
-        dataField: 'userType.name', text: 'permission', sort: true
+        dataField: 'userType.name', text: 'Zugriffsberechtigung', sort: true
     }, {
         dataField: "delete", text: 'Aktion', formatter: deleteUserButton
+    }]
+
+    const columnsOrgState = [{
+        dataField: 'stateId.name', text: 'Status', sort: true
+    }, {
+        dataField: "delete", text: 'Aktion', formatter: deleteStateButton
     }]
 
     const defaultSortedEvents = [{
@@ -96,6 +116,12 @@ export default function OrganizationComponent(props) {
             rerender();
         })
     }
+    const handleDeleteState = (id) => {
+        deleteOrganizationState(user, id).then(() => {
+            toast.success('State wurde aus der Organisation entfernt.');
+            rerender();
+        })
+    }
 
     return (<Container>
         <Row>
@@ -106,12 +132,12 @@ export default function OrganizationComponent(props) {
                 />{organizationObj.organization.name}
             </h1>
         </Row>
-        <Row className="py-4" xs={1} md={2}>
+        <Row>
             <Col>
                 <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
-                    <h3 className="text-secondary text text-uppercase">User Verwaltung</h3>
+                    <h4 className="text-secondary text text-uppercase">Verwaltung</h4>
                     <AddUserToOrganizationComponent
-                        render = {() => rerender()}
+                        render={() => rerender()}
                         organizationId={organizationId}/>
                     <div className="py-3">
                         <BootstrapTable
@@ -122,26 +148,40 @@ export default function OrganizationComponent(props) {
                     </div>
                 </div>
             </Col>
+        </Row>
+        <Row className="py-4" xs={1} md={2}>
             <Col>
                 <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
-                    <h3 className="text-secondary text text-uppercase">Neues Event</h3>
+                    <h4 className="text-secondary text-uppercase">Erlaubte Stati</h4>
+                    <AddStateToOrgForm
+                        render={() => rerender()}
+                        organizationid={organizationId}/>
+                    <BootstrapTable
+                        keyField='id'
+                        data={orgStates}
+                        columns={columnsOrgState}
+                        noDataIndication={<ThreeDots color="grey"/>}/>
+                </div>
+            </Col>
+            <Col>
+                <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
+                    <h4 className="text-secondary text text-uppercase">Neues Event</h4>
                     <NewEventFormComponent
                         setRender={rerender}
                         organizationId={organizationId}/>
                 </div>
             </Col>
+
         </Row>
         <Row xs={1}>
             <Col>
                 <div className="text-wrap shadow-sm p-3 mb-5 bg-light rounded">
-                    <h3 className="text-secondary text text-uppercase">Alle Events</h3>
-                    {/*{tableData === [] ?*/}
+                    <h4 className="text-secondary text text-uppercase">Alle Events</h4>
                     <BootstrapTable keyField='id'
                                     data={tableData}
                                     columns={columnsEvents}
                                     defaultSorted={defaultSortedEvents}
                                     noDataIndication={<TailSpin color="grey"/>}/>
-                    {/*: <p className="text-secondary text-center">Es sind noch keine Events vorhanden</p>}*/}
                 </div>
             </Col>
         </Row>

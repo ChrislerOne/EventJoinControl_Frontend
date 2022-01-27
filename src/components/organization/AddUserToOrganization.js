@@ -7,7 +7,7 @@ import {toast} from "react-toastify";
 export function AddUserToOrganizationComponent(props) {
     const [userTypeData, setUserTypeData] = useState([])
     const [email, setEmail] = useState("");
-    const [userType, setUserType] = useState("")
+    const [userType, setUserType] = useState(11)
 
 
     let user = useSelector((state) => state.auth.value);
@@ -23,7 +23,7 @@ export function AddUserToOrganizationComponent(props) {
 
     const OptionsList = () => {
         return (userTypeData.map((e, key) => {
-            if (e.name !== 'user') {
+            if (e.name !== 'user' && e.name !== 'owner') {
                 return <option key={key} value={e.id}>{e.name}</option>
             }
         }))
@@ -34,7 +34,7 @@ export function AddUserToOrganizationComponent(props) {
         postGrantPermissionForSpecificOrganization(user, email, props.organizationId, userType).then((r) => {
             props.render();
             toast.success('User mit E-Mail ' + email + ' wurde als ' + userType + 'angelegt!')
-        }).catch((err) => {
+        }).catch(() => {
             toast.error('Leider konnte kein User mit der E-Mail gefunden werden.')
         })
     }

@@ -1,5 +1,5 @@
 import {useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import {Button, Row} from "react-bootstrap";
 import './Home.css'
 
@@ -8,6 +8,7 @@ export default function HomeComponent(props) {
     if (user) {
         user = JSON.parse(user);
     }
+
     return (<div>
             <header className="masthead">
                 <div className="container h-100">

@@ -1,7 +1,7 @@
 import {Button, Form} from "react-bootstrap"
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth";
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {getUserPermission} from "../api/requests";
 import {toast} from "react-toastify";
 
@@ -10,6 +10,7 @@ export default function LoginComponent(props) {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -21,7 +22,9 @@ export default function LoginComponent(props) {
             ).catch((err) => {
                 console.log(err);
             })
-            navigate('/user');
+            if (location.pathname === '/' || location.pathname === '/login') {
+                navigate('/user');
+            }
         }).catch((error) => {
             toast.error('Deine Zugangsdaten scheinen falsch zu sein. Probere es erneut!')
         })

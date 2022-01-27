@@ -4,6 +4,7 @@ import {Link, Navigate, Outlet, useNavigate} from 'react-router-dom';
 import NewOrganizationForm from "./NewOrganizationForm";
 import {deleteOrganization} from "../api/requests";
 import {toast} from "react-toastify";
+import {useEffect} from "react";
 
 export default function UserOrganizationsComponent(props) {
     let userOrgs;
@@ -17,6 +18,9 @@ export default function UserOrganizationsComponent(props) {
         user = JSON.parse(user);
     }
 
+    useEffect(() => {
+        props.reload();
+    }, [])
 
     const OrganizationCard = (props) => {
         const handleClick = (id) => {
@@ -36,8 +40,10 @@ export default function UserOrganizationsComponent(props) {
             <Button variant="outline-primary" onClick={() => {
                 handleClick(props.id)
             }}>Anzeigen</Button>
-            <Button className="mx-3" variant="outline-danger"
-                    onClick={() => handleDeleteOrganization(props.id)}>LÖSCHEN</Button>
+            {props.permissionName === 'owner' ?
+                <Button className="mx-3" variant="outline-danger"
+                        onClick={() => handleDeleteOrganization(props.id)}>LÖSCHEN</Button>
+                : <></>}
         </div>)
     }
 
@@ -50,7 +56,8 @@ export default function UserOrganizationsComponent(props) {
                             <OrganizationCard userPermissionState={props.userPermissionState}
                                               name={e.organization.id}
                                               organization={e.organization.name} id={e.organization.id}
-                                              reload={props.reload}/>
+                                              reload={props.reload}
+                                              permissionName={e.userType.name}/>
                         </Col>)
                     })}
                     <Col>

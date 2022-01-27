@@ -1,10 +1,10 @@
 import axios from "axios";
 
 // LOKAL
-const baseURL = "http://127.0.0.1:8090/"
+// const baseURL = "http://127.0.0.1:8090/"
 
 // LIVE
-// const baseURL = "https://ejc-api.xn--fd-fkaa.de/"
+const baseURL = "https://ejc-api.xn--fd-fkaa.de/"
 
 // GET REQUESTS
 export const getAllUserTypes = async (user) => {
@@ -63,6 +63,18 @@ export const getStatusByToken = async (qrCode) => {
 
 export const getUsersByOrganization = async (user, organizationId) => {
     const url = baseURL + 'organization/user/list?idToken=' + user.stsTokenManager.accessToken + '&organizationid=' + organizationId
+    const res = await axios.get(url);
+    return res.data;
+}
+
+export const getAllStates = async (user) => {
+    const url = baseURL + 'states/list?idToken=' + user.stsTokenManager.accessToken;
+    const res = await axios.get(url);
+    return res.data;
+}
+
+export const getAllStatesAllowedByOrganization = async (user, organizationid) => {
+    const url = baseURL + 'organization/listorganizationstates?idToken=' + user.stsTokenManager.accessToken + '&organizationid=' + organizationid;
     const res = await axios.get(url);
     return res.data;
 }
@@ -131,6 +143,19 @@ export const postRefreshState = async (user) => {
     return res.data;
 }
 
+export const postaddStateToOrganization = async (user, stateId, organaizationid) => {
+    const url = baseURL + 'organization/addState?idToken=' + user.stsTokenManager.accessToken + '&organizationid=' + organaizationid + '&stateId=' + stateId;
+    const res = await axios.post(url)
+    return res.data;
+}
+
+
+export const postChangeUserState = async (user, qrToken, stateName) => {
+    const url = baseURL + 'user/editstatus?idToken=' + user.stsTokenManager.accessToken + '&qrtoken=' + qrToken + '&statename=' + stateName;
+    const res = await axios.post(url)
+    return res.data;
+}
+
 // DELETE REQUESTS
 export const deleteUserFromEvent = async (user, eventId) => {
     const url = baseURL + 'user/deleteFromEvent?idToken=' + user.stsTokenManager.accessToken;
@@ -157,6 +182,12 @@ export const deleteOrganization = async (user, organizationId) => {
 
 export const revokePermissionFromUser = async (user, orgausertypeid) => {
     const url = baseURL + 'user/revokeOrganizationPermission?idToken=' + user.stsTokenManager.accessToken + "&orgausertypeid=" + orgausertypeid;
+    const res = await axios.delete(url)
+    return res.data;
+}
+
+export const deleteOrganizationState = async (user, orgStateId) => {
+    const url = baseURL + 'organization/deleteState?idToken=' + user.stsTokenManager.accessToken + "&organizationStateid=" + orgStateId;
     const res = await axios.delete(url)
     return res.data;
 }
